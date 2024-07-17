@@ -48,6 +48,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
+            position: relative;
         }
         .letter-option {
             width: 100px;
@@ -86,6 +87,36 @@
             padding: 1rem;
             margin-top: auto;
         }
+        @keyframes success {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        @keyframes failure {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+        .success {
+            animation: success 0.5s ease-in-out;
+        }
+        .failure {
+            animation: failure 0.5s ease-in-out;
+        }
+        #feedback {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .show-feedback {
+            opacity: 1 !important;
+        }
     </style>
 </head>
 <body>
@@ -103,6 +134,7 @@
             </div>
             <button id="play-sound">Play Sound Again</button>
             <div id="letter-options"></div>
+            <div id="feedback"></div>
             <div id="score">Score: 0</div>
         </div>
     </main>
@@ -154,22 +186,45 @@
             });
         }
 
+        function showFeedback(isCorrect) {
+            const feedback = document.getElementById('feedback');
+            feedback.textContent = isCorrect ? '✓' : '✗';
+            feedback.style.color = isCorrect ? '#4CAF50' : '#F44336';
+            feedback.classList.add('show-feedback');
+            setTimeout(() => {
+                feedback.classList.remove('show-feedback');
+            }, 1000);
+        }
+
         function checkAnswer(selectedOption) {
-            if (selectedOption === currentLetter) {
+            const isCorrect = selectedOption === currentLetter;
+            const optionElement = Array.from(document.querySelectorAll('.letter-option')).find(el => el.textContent === selectedOption);
+            
+            if (isCorrect) {
                 score++;
-                document.getElementById('score').textContent = `Score: ${score}`;
-                nextRound();
+                optionElement.classList.add('success');
+                showFeedback(true);
+                setTimeout(() => {
+                    optionElement.classList.remove('success');
+                    document.getElementById('score').textContent = `Score: ${score}`;
+                    nextRound();
+                }, 1000);
             } else {
                 score = Math.max(0, score - 1);
-                document.getElementById('score').textContent = `Score: ${score}`;
-                playLetterSound();
+                optionElement.classList.add('failure');
+                showFeedback(false);
+                setTimeout(() => {
+                    optionElement.classList.remove('failure');
+                    document.getElementById('score').textContent = `Score: ${score}`;
+                    playLetterSound();
+                }, 1000);
             }
         }
 
         function nextRound() {
             currentLetter = getRandomLetter();
             displayOptions();
-            const delay = 3000 / gameSpeed;  // Adjust delay based on game speed
+            const delay = 3000 / gameSpeed;
             setTimeout(playLetterSound, delay);
         }
 
