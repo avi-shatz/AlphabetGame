@@ -69,6 +69,15 @@
             font-size: 1.5rem;
             margin-top: 1rem;
         }
+        #speed-control {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        #speed-slider {
+            width: 200px;
+            margin: 0 10px;
+        }
         footer {
             background-color: #4a90e2;
             color: white;
@@ -87,6 +96,11 @@
     <main>
         <button id="start-game">Start Game</button>
         <div id="game-area">
+            <div id="speed-control">
+                <span>Slow</span>
+                <input type="range" id="speed-slider" min="1" max="5" value="3">
+                <span>Fast</span>
+            </div>
             <button id="play-sound">Play Sound Again</button>
             <div id="letter-options"></div>
             <div id="score">Score: 0</div>
@@ -99,6 +113,7 @@
         const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
         let currentLetter;
         let score = 0;
+        let gameSpeed = 3;
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -154,7 +169,8 @@
         function nextRound() {
             currentLetter = getRandomLetter();
             displayOptions();
-            setTimeout(playLetterSound, 500);  // Delay to ensure UI updates before playing sound
+            const delay = 3000 / gameSpeed;  // Adjust delay based on game speed
+            setTimeout(playLetterSound, delay);
         }
 
         function startGame() {
@@ -163,8 +179,13 @@
             nextRound();
         }
 
+        function updateGameSpeed() {
+            gameSpeed = parseInt(this.value);
+        }
+
         document.getElementById('start-game').addEventListener('click', startGame);
         document.getElementById('play-sound').addEventListener('click', playLetterSound);
+        document.getElementById('speed-slider').addEventListener('input', updateGameSpeed);
     </script>
 </body>
 </html>
